@@ -25,3 +25,12 @@ class TeacherRegisterSerializer(serializers.Serializer):
         )
 
         return teacher
+
+class TeacherListSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    email = serializers.EmailField(source='user.email')
+
+    class Meta:
+        model = Teacher
+        fields = ['id', 'username', 'email', 'employee_id', 'date_joined']
+

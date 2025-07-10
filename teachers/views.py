@@ -2,8 +2,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from teachers.models import Teacher
 from users.permissions import IsAdminUserRole
-from teachers.serializers import TeacherRegisterSerializer
+from teachers.serializers import TeacherRegisterSerializer, TeacherListSerializer
 
 
 # Create your views here.
@@ -22,3 +23,12 @@ class TeacherRegisterAPIView(APIView):
             }, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TeacherListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        teachers = Teacher.objects.select_related('user').all()
+        serializer = TeacherListSerializer(teachers, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
