@@ -9,4 +9,4 @@ class Class(models.Model):
     students = models.ManyToManyField(Student, related_name='classes')
 
     def __str__(self):
-        return f"{self.name} - {self.section}"
+        return f"{self.section} - {self.section}"
