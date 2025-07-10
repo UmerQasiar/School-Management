@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'assignments',
     'grades',
     'attendance',
+    'subjects',
 ]
 
 MIDDLEWARE = [
