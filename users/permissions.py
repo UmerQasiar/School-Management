@@ -8,3 +8,12 @@ class IsAdminUserRole(BasePermission):
     def has_permission(self, request, view):
         user = request.user
         return user.is_authenticated and hasattr(user, 'profile') and user.profile.role == 'admin'
+
+class IsAdminOrTeacherUserRole(BasePermission):
+    """
+    Allows access only to users with role = 'admin'
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        return user.is_authenticated and hasattr(user, 'profile') and (user.profile.role == 'admin' or user.profile.role == 'teacher')
