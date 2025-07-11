@@ -16,11 +16,8 @@ class GradeListCreateAPIView(ListCreateAPIView):
         role = getattr(user.profile, 'role', None)
 
         if role == 'teacher' and hasattr(user, 'teacher'):
-            classes = user.teacher.classes.all()
-            students = set()
-            for cls in classes:
-                students.update(cls.students.all())
-            return Grade.objects.filter(student__in=students)
+            student_ids = user.teacher.classes.values_list('students__id', flat=True)
+            return Grade.objects.filter(student__id__in=student_ids)
         elif role == 'student' and hasattr(user, 'student'):
             return Grade.objects.filter(student=user.student)
         return Grade.objects.none()
