@@ -41,3 +41,15 @@ class StudentRegisterSerializer(serializers.Serializer):
             student.classes.set(Class.objects.filter(id__in=class_ids))
 
         return student
+
+class StudentSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    email = serializers.EmailField(source='user.email')
+    classes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Student
+        fields = ['id', 'username', 'email', 'enrollment_number', 'classes']
+
+    def get_classes(self, student):
+        return [cls.section for cls in student.classes.all()]

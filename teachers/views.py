@@ -6,6 +6,8 @@ from teachers.models import Teacher
 from users.permissions import IsAdminUserRole
 from teachers.serializers import TeacherRegisterSerializer, TeacherListSerializer
 from classes.serializers import ClassSerializer
+from students.models import Student
+from students.serializers import StudentSerializer
 
 
 # Create your views here.
@@ -44,4 +46,17 @@ class TeacherClassesAPIView(APIView):
 
         classes = teacher.classes.all()
         serializer = ClassSerializer(classes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class TeacherStudentsAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # or AllowAny
+
+    def get(self, request, id):
+        try:
+            teacher = Teacher.objects.get(id=id)
+        except Teacher.DoesNotExist:
+            return Response({"detail": "Teacher not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        students = Student.objects.filter(classes__teacher=teacher).distinct()
+        serializer = StudentSerializer(students, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
