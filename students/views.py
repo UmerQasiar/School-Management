@@ -1,8 +1,10 @@
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .serializers import StudentRegisterSerializer
+from .models import Student
+from .serializers import StudentRegisterSerializer, StudentSerializer
 from users.permissions import IsAdminUserRole
 
 class StudentRegisterAPIView(APIView):
@@ -22,3 +24,18 @@ class StudentRegisterAPIView(APIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class StudentListAPIView(ListAPIView):
+    serializer_class = StudentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        role = getattr(user.profile, 'role', None)
+
+        if role == 'admin':
+            return Student.objects.all()
+        elif role == 'teacher' and hasattr(user, 'teacher'):
+            return Student.objects.filter(classes__teacher=user.teacher).distinct()
+        elif role == 'student' and hasattr(user, 'student'):
+            return Student.objects.filter(id=user.student.id)
+        return Student.objects.none()
