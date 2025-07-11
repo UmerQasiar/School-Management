@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from teachers.models import Teacher
 from users.permissions import IsAdminUserRole
 from teachers.serializers import TeacherRegisterSerializer, TeacherListSerializer
+from classes.serializers import ClassSerializer
 
 
 # Create your views here.
@@ -24,11 +25,23 @@ class TeacherRegisterAPIView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class TeacherListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         teachers = Teacher.objects.select_related('user').all()
         serializer = TeacherListSerializer(teachers, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class TeacherClassesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id):
+        try:
+            teacher = Teacher.objects.get(id=id)
+        except Teacher.DoesNotExist:
+            return Response({"detail": "Teacher not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        classes = teacher.classes.all()
+        serializer = ClassSerializer(classes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
